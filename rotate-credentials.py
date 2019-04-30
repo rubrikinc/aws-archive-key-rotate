@@ -97,13 +97,13 @@ def rotate_access_key(secret):
     print('Updating archive on {}'.format(rubrik_cred['rubrik_ip']))
     update_response = rubrik.update_aws_s3_cloudout(archive['definition']['name'], aws_access_key=new_access_key['AccessKeyId'], aws_secret_key=new_access_key['SecretAccessKey'])
 
-    if update_response['accessKey']['name'] == new_access_key['AccessKeyId']:
-        print ('access key update success')
-    elif update_response['accessKey']['name'] != new_access_key['AccessKeyId']:
-        print('access key update failed')
+    #if update_response['accessKey']['name'] == new_access_key['AccessKeyId']:
+    #    print ('access key update success')
+    #elif update_response['accessKey']['name'] != new_access_key['AccessKeyId']:
+    #    print('access key update failed')
     return update_response
 
-#secrets_in_scope = get_secrets_in_scope(secrets_client, secret_prefix)
+secrets_in_scope = get_secrets_in_scope(secrets_client, secret_prefix)
 
-#for secret in secrets_in_scope:
-    #rotate_access_key(secret)
+for secret in secrets_in_scope:
+    update_response = rotate_access_key(secret)
