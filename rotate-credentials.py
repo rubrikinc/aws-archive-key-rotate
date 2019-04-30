@@ -80,20 +80,18 @@ def create_new_access_key(iam_client, iam_username):
     return new_access_key
 
 #function to rotate access key on for matching archive on rubrik cluster specified in secret
-def rotate_access_key(secret, iam_client, iam_username):
+def rotate_access_key(secret, iam_client, iam_username, access_keys):
     #connect to the rubrik cluster for this secret    
     rubrik_cred = ast.literal_eval(secrets_client.get_secret_value(SecretId=secret['ARN'])['SecretString'])
     rubrik = rubrik_cdm.Connect(rubrik_cred['rubrik_ip'], rubrik_cred['rubrik_user'], rubrik_cred['rubrik_password'])
     #find the archive that matches our secret
-    global current_access_key
-    archive = get_archive_in_scope(rubrik, rubrik_cred, current_access_key)
+    archive = get_archive_in_scope(rubrik, rubrik_cred, access_keys['current_access_key'])
     #tidy up the depricated access key if we have an archive match and an existing depricated key
-    global depricated_access_key
-    if depricated_access_key is not None and archive is not None:
+    if access_keys['depricated_access_key'] is not None and archive is not None:
         print('rotate_access_key - found matching archive and depricated access key, deleting depricated access key')
-        delete_depricated_access_key(iam_client, depricated_access_key)
-        depricated_access_key = None
-    elif depricated_access_key is not None and archive is None:
+        delete_depricated_access_key(iam_client, access_keys['depricated_access_key'])
+        access_keys['depricated_access_key'] = None
+    elif access_keys['depricated_access_key'] is not None and archive is None:
         print('rotate_access_key - found depricated access key but no matching archive on cluster \'{}\', skipping deletion of depricated access key'.format(rubrik_cred['rubrik_ip']))
     #check to see if we already have a new access key from this run, if not, create one            
     global new_access_key
@@ -119,22 +117,20 @@ def rotate_access_key(secret, iam_client, iam_username):
 #initate automated secrets rotation
 def rotate_secrets():
     #get current and depricated access keys for iam_user
-    global current_access_key
-    global depricated_access_key
-    global new_access_key
     access_keys = get_current_access_keys(iam_client, iam_username)
-    current_access_key = access_keys['current_access_key']
-    depricated_access_key = access_keys['depricated_access_key']
     #init new_access_key global as None
+    global new_access_key
     new_access_key = None
     #get list of clusters and archives in scope for archive credential rotation from secrets manager
     secrets_in_scope = get_secrets_in_scope(secrets_client, secret_prefix)
     #rotate the access key for each cluster and archive in scope, print the api response from rubrik
     for secret in secrets_in_scope:
         print('beginning credential rotation for secret \'{}\''.format(secret['Name']))
-        response = rotate_access_key(secret, iam_client, iam_username)
+        response = rotate_access_key(secret, iam_client, iam_username, access_keys)
         if response:
             print('successfully rotated credentials for secret \'{}\', response from rubrik:'.format(secret['Name']))
             print(response)
         else:
             print('no archive matching secret \'{}\''.format(secret['Name']))
+
+rotate_secrets()
