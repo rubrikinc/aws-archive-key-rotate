@@ -125,12 +125,12 @@ def rotate_secrets():
     secrets_in_scope = get_secrets_in_scope(secrets_client, secret_prefix)
     #rotate the access key for each cluster and archive in scope, print the api response from rubrik
     for secret in secrets_in_scope:
-        print('beginning credential rotation for secret \'{}\''.format(secret['Name']))
+        print('rotate_secrets - beginning credential rotation for secret \'{}\''.format(secret['Name']))
         response = rotate_access_key(secret, iam_client, iam_username, access_keys)
         if response:
-            print('successfully rotated credentials for secret \'{}\', response from rubrik:'.format(secret['Name']))
+            print('rotate_secrets - successfully rotated credentials for secret \'{}\', response from rubrik:'.format(secret['Name']))
             print(response)
         else:
-            print('no archive matching secret \'{}\''.format(secret['Name']))
+            print('rotate_secrets - no archive matching secret \'{}\''.format(secret['Name']))
 
 rotate_secrets()
