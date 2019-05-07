@@ -2,6 +2,7 @@ import rubrik_cdm
 import boto3
 import ast
 import urllib3
+import datetime
 import time
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -12,10 +13,28 @@ secret_region = 'us-west-1'
 secret_prefix = '/rubrik/archive/'
 #name of the iam user used for rubrik archive connectivity
 iam_username = 'gurling-archive-test-user'
+#cloudwatch log stream for logging
 
 #connect to secrets manager and iam
 secrets_client = boto3.client('secretsmanager', region_name=secret_region)
 iam_client = boto3.client('iam')
+logs = boto3.client('logs', region_name=secret_region)
+log_group_name = '/rubrik/archive/rotate'
+date = datetime.datetime.now()
+log_stream_name = '{}/{}/{}/rotate_log'.format(date.strftime("%Y"),date.strftime("%m"),date.strftime("%d"))
+
+def init_cloudwatch(log_group_name, log_stream_name):
+    log_group = logs.describe_log_groups(logGroupNamePrefix=log_group_name)
+    if len(log_group['logGroups']) = 0:
+        logs.create_log_group(logGroupName=log_group_name)
+        log_group = logs.describe_log_groups(logGroupNamePrefix=log_group_name)
+    #log_stream = logs.describe_log_groups(logGroupName=log_group_name, logStreamNamePrefix=log_stream_name)
+
+def log_cloudwatch(message):
+    if sequence_token is None:
+        pass
+    timestamp = int(round(time.time() * 1000))
+    response = logs.put_log_events(logGroupName=log_group, logStreamName=log_stream, logEvents=[{'timestamp': timestamp, 'message': message}], sequenceToken=response["nextSequenceToken"])
 
 #function to get dict of access keys for iam_username, oldest key is marked as depricated, newest key is marked as current
 def get_current_access_keys(iam_client, iam_username):
