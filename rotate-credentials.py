@@ -26,25 +26,21 @@ def init_cloudwatch(log_group_name, log_stream_name):
     log_group = logs.describe_log_groups(logGroupNamePrefix=log_group_name)
     if len(log_group['logGroups']) == 0:
         logs.create_log_group(logGroupName=log_group_name)
-        log_group = logs.describe_log_groups(logGroupNamePrefix=log_group_name)
     log_stream = logs.describe_log_streams(logGroupName=log_group_name, logStreamNamePrefix=log_stream_name)
     if len(log_stream['logStreams']) == 0:
         logs.create_log_stream(logGroupName=log_group_name, logStreamName=log_stream_name)
-        log_stream = logs.describe_log_streams(logGroupName=log_group_name, logStreamNamePrefix=log_stream_name)
-    try:
-        next_sequence_token = log_stream['logStreams'][0]['uploadSequenceToken']
-    except KeyError:
-        next_sequence_token = None
-    return next_sequence_token
 
 def log_cloudwatch(message):
+    log_stream = logs.describe_log_streams(logGroupName=log_group_name, logStreamNamePrefix=log_stream_name)
+    try:
+        sequence_token = log_stream['logStreams'][0]['uploadSequenceToken']
+    except KeyError:
+        sequence_token = None
     timestamp = int(round(time.time() * 1000))
     if sequence_token is None:
         response = logs.put_log_events(logGroupName=log_group_name, logStreamName=log_stream_name, logEvents=[{'timestamp': timestamp, 'message': message}])
-        sequence_token = response['nextSequenceToken']
     else:
         response = logs.put_log_events(logGroupName=log_group_name, logStreamName=log_stream_name, logEvents=[{'timestamp': timestamp, 'message': message}], sequenceToken=sequence_token)
-        sequence_token = response['nextSequenceToken']
     return response
 
 #function to get dict of access keys for iam_username, oldest key is marked as depricated, newest key is marked as current
@@ -147,7 +143,7 @@ def rotate_access_key(secret, iam_client, iam_username, access_keys):
 #initate automated secrets rotation
 def rotate_secrets():
     #logging init
-    sequence_token = init_cloudwatch(log_group_name, log_stream_name)
+    init_cloudwatch(log_group_name, log_stream_name)
     #get current and depricated access keys for iam_user
     access_keys = get_current_access_keys(iam_client, iam_username)
     #init new_access_key global as None
