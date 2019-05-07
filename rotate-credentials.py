@@ -4,6 +4,7 @@ import ast
 import urllib3
 import datetime
 import time
+import json
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 ####user defined vaiables#####
@@ -157,7 +158,7 @@ def rotate_secrets():
         response = rotate_access_key(secret, iam_client, iam_username, access_keys)
         if response:
             log_cloudwatch('rotate_secrets - successfully rotated credentials for secret \'{}\', response from rubrik:'.format(secret['Name']))
-            log_cloudwatch(response)
+            log_cloudwatch(json.dumps(response))
         else:
             log_cloudwatch('rotate_secrets - no archive matching secret \'{}\''.format(secret['Name']))
 
