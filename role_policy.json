@@ -1,0 +1,50 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "Secrets",
+            "Effect": "Allow",
+            "Action": [
+                "secretsmanager:GetSecretValue",
+                "secretsmanager:DescribeSecret"
+            ],
+            "Resource": [
+                "arn:aws:secretsmanager:REGION:ACCOUNTNUMBER:secret:SECRETPREFIX"
+            ]
+        },
+        {
+            "Sid": "Keys",
+            "Effect": "Allow",
+            "Action": [
+                "iam:*AccessKey*"
+            ],
+            "Resource": [
+                "arn:aws:iam::ACCOUNTNUMBER:user/IAMUSER"
+            ]
+        },
+        {
+            "Sid": "ListGet",
+            "Effect": "Allow",
+            "Action": [
+                "iam:GetAccountPasswordPolicy",
+                "iam:ListAccount*",
+                "iam:ListUsers",
+                "secretsmanager:ListSecrets",
+                "iam:GetAccountSummary"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Sid": "Logs",
+            "Effect": "Allow",
+            "Action": [
+                "logs:DescribeLogGroups",
+                "logs:DescribeLogStreams",
+                "logs:PutLogEvents",
+                "logs:CreateLogGroup",
+                "logs:CreateLogStream"
+            ],
+            "Resource": "arn:aws:logs:*:*:*"
+        }
+    ]
+}

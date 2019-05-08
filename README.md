@@ -1,14 +1,12 @@
-# aws-archive-key-rotate
+# AWS CloudOut Archive Credential Rotation
 
-## :hammer: Installation
-
-## :mag: Example
+Rubrik’s API first architecture enables organizations to embrace and integrate Rubrik functionality into their existing automation processes. Some Rubrik customers prefer to manage the rotation of secrets via the cron jobs. This solution is designed to allow customers to deploy a solution that provides IAM credential rotation for multiple Rubrik CloudOut archives to a single AWS account. The current version of this solution assumes the rotation logic will be executed via cron on an Amazon EC2 instance with an AWS IAM role assigned to it and connectivity to all Rubrik clusters in scope for rotation.
 
 ## :blue_book: Documentation
 
 Here are some resources to get you started! If you find any challenges from this project are not properly documented or are unclear, please raise an issueand let us know! This is a fun, safe environment - don't worry if you're a GitHub newbie! :heart:
 
-* Quick Start Guide
+* [Quick Start Guide](./docs/quick-start.md)
 * [Rubrik API Documentation](https://github.com/rubrikinc/api-documentation)
 
 ## :muscle: How You Can Help
